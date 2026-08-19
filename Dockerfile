@@ -1,7 +1,8 @@
 # =============================================================================
 # Stage 1: Builder - Build the binary
 # =============================================================================
-FROM rust:1.85-slim as builder
+# Change from an older tag like rust:1.85 to rust:1.88 or rust:latest
+FROM rust:latest AS builder
 
 # Install build dependencies
 RUN apt-get update && \
