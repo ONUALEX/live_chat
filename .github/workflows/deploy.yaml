@@ -20,7 +20,7 @@ jobs:
       
       - name: Build Docker images and pull nginx
         run: |
-          docker compose build
+          docker compose -f docker-compose.yaml build
           docker pull nginx:latest
       
       - name: Save images
@@ -49,12 +49,12 @@ jobs:
           scp -i ~/.ssh/id_ed25519 live_chat.tar root@$DROPLET_IP:/root/
           scp -i ~/.ssh/id_ed25519 nginx.tar root@$DROPLET_IP:/root/
           
-          # Copy docker-compose.yml and nginx.conf
-          scp -i ~/.ssh/id_ed25519 docker-compose.yml root@$DROPLET_IP:/opt/live_chat/
+          # Copy docker-compose.yaml and nginx.conf
+          scp -i ~/.ssh/id_ed25519 docker-compose.yaml root@$DROPLET_IP:/opt/live_chat/
           scp -i ~/.ssh/id_ed25519 nginx.conf root@$DROPLET_IP:/opt/live_chat/
           
-          # Copy static files (if any changes)
-          scp -i ~/.ssh/id_ed25519 -r ./static root@$DROPLET_IP:/opt/live_chat/
+          # Copy static files (if directory exists)
+          [ -d ./static ] && scp -i ~/.ssh/id_ed25519 -r ./static root@$DROPLET_IP:/opt/live_chat/ || true
       
       - name: Deploy on Droplet
         env:
@@ -68,11 +68,11 @@ jobs:
             docker load -i /root/nginx.tar
             rm -f /root/live_chat.tar /root/nginx.tar
             
-            # Stop and remove old containers
-            docker compose down || true
+            # Stop and remove old containers using docker-compose.yaml
+            docker compose -f docker-compose.yaml down || true
             
             # Start new containers
-            docker compose up -d
+            docker compose -f docker-compose.yaml up -d
             
             # Clean up unused images
             docker image prune -f
