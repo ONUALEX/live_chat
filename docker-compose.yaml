@@ -2,13 +2,9 @@ services:
   # Your Rust chat application
   live_chat:
     build: .
-    image: live_chat:latest   
+    image: live_chat:latest
     container_name: live_chat_app
     restart: unless-stopped
-    # These ports are for internal communication only, not exposed to the host.
-    # They will be accessed by the Nginx container.
-    ports:
-      - "127.0.0.1:3030:3030"
 
   # The Nginx reverse proxy
   nginx:

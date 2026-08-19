@@ -15,14 +15,13 @@ jobs:
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Pull base and external images
-        run: |
-          docker pull nginx:latest
+        with:
+          driver: docker
       
-      - name: Build Docker images
+      - name: Build Docker images and pull nginx
         run: |
           docker compose build
+          docker pull nginx:latest
       
       - name: Save images
         run: |
@@ -43,6 +42,9 @@ jobs:
         env:
           DROPLET_IP: ${{ secrets.DROPLET_IP }}
         run: |
+          # Ensure target directory exists on Droplet before running SCP
+          ssh -i ~/.ssh/id_ed25519 root@$DROPLET_IP "mkdir -p /opt/live_chat"
+
           # Copy Docker images
           scp -i ~/.ssh/id_ed25519 live_chat.tar root@$DROPLET_IP:/root/
           scp -i ~/.ssh/id_ed25519 nginx.tar root@$DROPLET_IP:/root/
@@ -75,7 +77,7 @@ jobs:
             # Clean up unused images
             docker image prune -f
             
-            echo " Deployment complete!"
+            echo "Deployment complete!"
           EOF
       
       - name: Verify deployment
@@ -84,4 +86,4 @@ jobs:
         run: |
           sleep 5
           curl -f http://$DROPLET_IP || exit 1
-          echo " App is running at http://$DROPLET_IP"
+          echo "App is running at http://$DROPLET_IP"
