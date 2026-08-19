@@ -2,6 +2,7 @@ services:
   # Your Rust chat application
   live_chat:
     build: .
+    image: live_chat:latest   
     container_name: live_chat_app
     restart: unless-stopped
     # These ports are for internal communication only, not exposed to the host.
